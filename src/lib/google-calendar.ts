@@ -2,6 +2,26 @@ import { google } from "googleapis";
 import { BUSINESS_HOURS } from "./services";
 import type { TimeSlot } from "@/types";
 
+/**
+ * Converts a local date + hour in the given IANA timezone to a UTC Date.
+ * Uses the Intl offset-detection trick so DST is handled automatically.
+ */
+function localHourToUTC(dateStr: string, hour: number, timeZone: string): Date {
+  const probe = new Date(`${dateStr}T${String(hour).padStart(2, "0")}:00:00Z`);
+  const localStr = new Intl.DateTimeFormat("sv-SE", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  }).format(probe);
+  const probeAsLocal = new Date(localStr.replace(" ", "T") + "Z");
+  const offset = probe.getTime() - probeAsLocal.getTime();
+  return new Date(probe.getTime() + offset);
+}
+
 function getCalendarClient() {
   const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
   const key = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n");
@@ -30,11 +50,12 @@ export async function getAvailableSlots(
   const calendar = getCalendarClient();
   const calendarId = getCalendarId();
 
-  const dayStart = new Date(`${date}T${String(BUSINESS_HOURS.start).padStart(2, "0")}:00:00`);
-  const dayEnd = new Date(`${date}T${String(BUSINESS_HOURS.end).padStart(2, "0")}:00:00`);
-
   // Get timezone from environment or default to America/Los_Angeles
   const timeZone = process.env.TIMEZONE ?? "America/Los_Angeles";
+
+  // Interpret business-hour boundaries in the salon's local timezone (not UTC)
+  const dayStart = localHourToUTC(date, BUSINESS_HOURS.start, timeZone);
+  const dayEnd = localHourToUTC(date, BUSINESS_HOURS.end, timeZone);
 
   // Query freebusy to find occupied times
   const freeBusy = await calendar.freebusy.query({

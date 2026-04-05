@@ -20,11 +20,12 @@ export async function POST(request: NextRequest) {
       timeZone,
     });
 
-    const dateDisplay = new Date(`${date}T12:00:00`).toLocaleDateString("en-US", {
+    const dateDisplay = new Date(`${date}T12:00:00Z`).toLocaleDateString("en-US", {
       weekday: "long",
       year: "numeric",
       month: "long",
       day: "numeric",
+      timeZone,
     });
 
     // Build a signed confirm token with all booking data
