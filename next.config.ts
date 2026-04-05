@@ -6,9 +6,6 @@ const nextConfig: NextConfig = {
     // Type checking happens locally; skip in Docker build to save memory
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
 };
 
 export default nextConfig;
