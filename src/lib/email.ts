@@ -9,7 +9,10 @@ function getTransporter() {
   }
 
   return nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false, // STARTTLS (port 465/SMTPS is blocked on Hetzner)
+    requireTLS: true,
     auth: { user, pass },
   });
 }
