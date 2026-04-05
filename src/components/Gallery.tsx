@@ -2,14 +2,19 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { galleryData } from "@/lib/gallery";
+import { galleryData, GalleryTier } from "@/lib/gallery";
 import GalleryLightbox from "@/components/GalleryLightbox";
 
-export default function Gallery() {
+interface Props {
+  tiers?: GalleryTier[];
+}
+
+export default function Gallery({ tiers }: Props) {
+  const data = tiers ?? galleryData;
   const [activeTier, setActiveTier] = useState(0);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  const tier = galleryData[activeTier];
+  const tier = data[activeTier];
   const images = tier.images;
 
   const openLightbox = (i: number) => setLightboxIndex(i);
@@ -37,7 +42,7 @@ export default function Gallery() {
 
         {/* Tier tabs */}
         <div className="flex justify-center gap-3 mb-10 flex-wrap">
-          {galleryData.map((t, i) => (
+          {data.map((t, i) => (
             <button
               key={t.tier}
               onClick={() => setActiveTier(i)}

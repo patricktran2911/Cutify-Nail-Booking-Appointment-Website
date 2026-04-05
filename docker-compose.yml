@@ -1,0 +1,11 @@
+services:
+  cutify:
+    build: .
+    container_name: cutify-nails
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.local
+    volumes:
+      - ./public/assets:/app/public/assets

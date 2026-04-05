@@ -10,8 +10,10 @@ import FirstTimePerk from "@/components/FirstTimePerk";
 import BookingWizard from "@/components/BookingWizard";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
+import { getDynamicGalleryData } from "@/lib/gallery.server";
 
 export default function Home() {
+  const galleryTiers = getDynamicGalleryData();
   return (
     <>
       <Navbar />
@@ -20,7 +22,7 @@ export default function Home() {
         <About />
         <Services />
         <NailArtTiers />
-        <Gallery />
+        <Gallery tiers={galleryTiers} />
         <RemovalRepair />
         <BookingPolicies />
         <FirstTimePerk />
