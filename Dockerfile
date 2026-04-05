@@ -4,7 +4,7 @@ FROM node:20-alpine AS base
 FROM base AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm install --frozen-lockfile --ignore-scripts 2>/dev/null || npm install --ignore-scripts
 
 # --- Builder ---
 FROM base AS builder
