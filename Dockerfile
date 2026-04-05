@@ -3,8 +3,8 @@ FROM node:20-alpine AS base
 # --- Dependencies ---
 FROM base AS deps
 WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm install --frozen-lockfile --ignore-scripts 2>/dev/null || npm install --ignore-scripts
+COPY package.json ./
+RUN npm install --omit=optional
 
 # --- Builder ---
 FROM base AS builder
