@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useBooking, useBookingDispatch, useBookingTotal } from "./BookingContext";
 import { DEPOSIT_AMOUNT } from "@/lib/services";
-import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
 function PaymentContent() {
   const state = useBooking();
@@ -13,56 +12,28 @@ function PaymentContent() {
   const [bookingError, setBookingError] = useState<string | null>(null);
   const [bookingLoading, setBookingLoading] = useState(false);
 
-  const createBooking = async (paymentMethod: "paypal" | "manual", paypalOrderId?: string) => {
+  const createBooking = async () => {
     setBookingLoading(true);
     setBookingError(null);
     try {
-      if (paymentMethod === "paypal") {
-        // PayPal paid → create calendar event immediately
-        const res = await fetch("/api/calendar/book", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            service: state.selectedService,
-            artTier: state.selectedArtTier,
-            removal: state.selectedRemoval,
-            timeSlot: state.selectedTimeSlot,
-            date: state.selectedDate,
-            clientInfo: state.clientInfo,
-            total,
-            depositPaid: true,
-            paypalOrderId,
-          }),
-        });
-        if (!res.ok) throw new Error("Failed to create booking");
-        const data = await res.json();
-        dispatch({ type: "SET_CALENDAR_EVENT_ID", payload: data.eventId ?? null });
-        if (paypalOrderId) {
-          dispatch({ type: "SET_PAYPAL_ORDER_ID", payload: paypalOrderId });
-        }
-      } else {
-        // Manual payment → send email to owner, no calendar event yet
-        const res = await fetch("/api/payment/notify-manual", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            service: state.selectedService,
-            artTier: state.selectedArtTier,
-            removal: state.selectedRemoval,
-            timeSlot: state.selectedTimeSlot,
-            date: state.selectedDate,
-            clientInfo: state.clientInfo,
-            total,
-          }),
-        });
-        if (!res.ok) throw new Error("Failed to send booking notice");
-      }
-
-      dispatch({ type: "SET_PAYMENT_METHOD", payload: paymentMethod });
-      dispatch({
-        type: "SET_PAYMENT_STATUS",
-        payload: paymentMethod === "paypal" ? "completed" : "manual-pending",
+      // Manual payment → send email to owner, no calendar event yet
+      const res = await fetch("/api/payment/notify-manual", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          service: state.selectedService,
+          artTier: state.selectedArtTier,
+          removal: state.selectedRemoval,
+          timeSlot: state.selectedTimeSlot,
+          date: state.selectedDate,
+          clientInfo: state.clientInfo,
+          total,
+        }),
       });
+      if (!res.ok) throw new Error("Failed to send booking notice");
+
+      dispatch({ type: "SET_PAYMENT_METHOD", payload: "manual" });
+      dispatch({ type: "SET_PAYMENT_STATUS", payload: "manual-pending" });
       dispatch({ type: "NEXT_STEP" });
     } catch {
       setBookingError("Something went wrong. Please try again.");
@@ -174,54 +145,6 @@ function PaymentContent() {
 
       {!bookingLoading && (
         <>
-          {/* PayPal Payment */}
-          <div>
-            <h4 className="font-heading font-bold text-warm-dark text-sm mb-3">
-              Pay ${DEPOSIT_AMOUNT} Deposit Online
-            </h4>
-            <PayPalButtons
-              style={{
-                layout: "vertical",
-                color: "gold",
-                shape: "pill",
-                label: "pay",
-                height: 45,
-              }}
-              fundingSource={undefined}
-              createOrder={async () => {
-                const res = await fetch("/api/payment/create-order", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ amount: DEPOSIT_AMOUNT }),
-                });
-                const data = await res.json();
-                return data.id;
-              }}
-              onApprove={async (data) => {
-                const res = await fetch("/api/payment/capture-order", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ orderId: data.orderID }),
-                });
-                if (!res.ok) {
-                  setBookingError("Payment capture failed. Please try again.");
-                  return;
-                }
-                await createBooking("paypal", data.orderID);
-              }}
-              onError={() => {
-                setBookingError("Payment failed. Please try again or use manual payment.");
-              }}
-            />
-          </div>
-
-          {/* Divider */}
-          <div className="flex items-center gap-4">
-            <div className="flex-1 h-px bg-brand-100" />
-            <span className="text-sm text-warm-gray">or</span>
-            <div className="flex-1 h-px bg-brand-100" />
-          </div>
-
           {/* Manual Payment */}
           <div className="bg-white rounded-xl border-2 border-brand-100/40 p-5">
             <h4 className="font-heading font-bold text-warm-dark text-sm mb-3">
@@ -248,7 +171,7 @@ function PaymentContent() {
               </button>
             ) : (
               <button
-                onClick={() => createBooking("manual")}
+                onClick={() => createBooking()}
                 className="w-full py-2.5 bg-brand-400 text-white font-semibold rounded-full hover:bg-brand-300 transition-colors text-sm"
               >
                 Submit Booking Request
@@ -262,21 +185,5 @@ function PaymentContent() {
 }
 
 export default function PaymentStep() {
-  const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
-
-  if (!clientId) {
-    return <PaymentContent />;
-  }
-
-  return (
-    <PayPalScriptProvider
-      options={{
-        clientId,
-        currency: "USD",
-        intent: "capture",
-      }}
-    >
-      <PaymentContent />
-    </PayPalScriptProvider>
-  );
+  return <PaymentContent />;
 }
