@@ -15,6 +15,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://cutifynail.tramsbeauty.com"),
   title: "Cutify Nails — Cute Nail Art in San Marcos, CA",
   description:
     "Licensed nail artist specializing in advanced nail art and cutesy Asian nail art. Book your appointment today!",
