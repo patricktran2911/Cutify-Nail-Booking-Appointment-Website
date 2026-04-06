@@ -25,6 +25,11 @@ function formatDate(dateStr: string): string {
   });
 }
 
+interface ScheduleInfo {
+  offDays: number[];
+  blockedDates: string[];
+}
+
 export default function DateTimeStep() {
   const state = useBooking();
   const dispatch = useBookingDispatch();
@@ -32,8 +37,26 @@ export default function DateTimeStep() {
   const [slots, setSlots] = useState<TimeSlot[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [schedule, setSchedule] = useState<ScheduleInfo | null>(null);
 
   const duration = state.selectedService?.duration ?? 60;
+
+  // Fetch schedule info (off-days + blocked dates)
+  useEffect(() => {
+    fetch("/api/availability/schedule")
+      .then((r) => r.json())
+      .then((data: ScheduleInfo) => setSchedule(data))
+      .catch(() => {}); // silently fail — dates just won't be greyed out
+  }, []);
+
+  function isDateOff(dateStr: string): boolean {
+    if (!schedule) return false;
+    // Check blocked dates
+    if (schedule.blockedDates.includes(dateStr)) return true;
+    // Check day-of-week
+    const d = new Date(dateStr + "T12:00:00");
+    return schedule.offDays.includes(d.getDay());
+  }
 
   const fetchSlots = useCallback(
     async (date: string) => {
@@ -83,6 +106,7 @@ export default function DateTimeStep() {
         <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
           {dates.map((date) => {
             const isSelected = state.selectedDate === date;
+            const off = isDateOff(date);
             const d = new Date(date + "T12:00:00");
             const dayName = d.toLocaleDateString("en-US", { weekday: "short" });
             const dayNum = d.getDate();
@@ -90,11 +114,14 @@ export default function DateTimeStep() {
             return (
               <button
                 key={date}
-                onClick={() => handleDateSelect(date)}
+                onClick={() => !off && handleDateSelect(date)}
+                disabled={off}
                 className={`shrink-0 w-16 py-3 rounded-xl border-2 transition-all text-center ${
-                  isSelected
-                    ? "border-brand-400 bg-brand-50"
-                    : "border-brand-100/40 bg-white hover:border-brand-200"
+                  off
+                    ? "border-brand-100/20 bg-gray-50 opacity-40 cursor-not-allowed"
+                    : isSelected
+                      ? "border-brand-400 bg-brand-50"
+                      : "border-brand-100/40 bg-white hover:border-brand-200"
                 }`}
               >
                 <span className="text-xs text-warm-gray block">{dayName}</span>

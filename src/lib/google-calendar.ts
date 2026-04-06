@@ -45,7 +45,9 @@ function getCalendarId() {
 
 export async function getAvailableSlots(
   date: string,
-  durationMinutes: number
+  durationMinutes: number,
+  startHour?: number,
+  endHour?: number
 ): Promise<TimeSlot[]> {
   const calendar = getCalendarClient();
   const calendarId = getCalendarId();
@@ -53,9 +55,13 @@ export async function getAvailableSlots(
   // Get timezone from environment or default to America/Los_Angeles
   const timeZone = process.env.TIMEZONE ?? "America/Los_Angeles";
 
+  // Use provided hours or fall back to global BUSINESS_HOURS
+  const openHour = startHour ?? BUSINESS_HOURS.start;
+  const closeHour = endHour ?? BUSINESS_HOURS.end;
+
   // Interpret business-hour boundaries in the salon's local timezone (not UTC)
-  const dayStart = localHourToUTC(date, BUSINESS_HOURS.start, timeZone);
-  const dayEnd = localHourToUTC(date, BUSINESS_HOURS.end, timeZone);
+  const dayStart = localHourToUTC(date, openHour, timeZone);
+  const dayEnd = localHourToUTC(date, closeHour, timeZone);
 
   // Query freebusy to find occupied times
   const freeBusy = await calendar.freebusy.query({

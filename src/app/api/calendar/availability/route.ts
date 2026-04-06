@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAvailableSlots } from "@/lib/google-calendar";
+import { getDaySchedule } from "@/lib/availability.server";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
@@ -20,8 +21,15 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  // Check admin availability schedule
+  const dayHours = getDaySchedule(date);
+  if (!dayHours) {
+    // Day is off or blocked — no slots
+    return NextResponse.json({ slots: [] });
+  }
+
   try {
-    const slots = await getAvailableSlots(date, duration);
+    const slots = await getAvailableSlots(date, duration, dayHours.start, dayHours.end);
     return NextResponse.json({ slots });
   } catch (error) {
     console.error("Calendar availability error:", error);
