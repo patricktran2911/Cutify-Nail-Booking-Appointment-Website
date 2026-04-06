@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, DragEvent, ChangeEvent } from "react";
-import Image from "next/image";
+// Using plain <img> instead of next/image since images.unoptimized is true
 import { useRouter } from "next/navigation";
 import type { AvailabilityConfig, DaySchedule } from "@/lib/availability";
 import { DAY_NAMES, DAY_LABELS, DEFAULT_AVAILABILITY } from "@/lib/availability";
@@ -290,12 +290,11 @@ export default function AdminPage() {
                         key={filename}
                         className="relative aspect-square rounded-xl overflow-hidden group"
                       >
-                        <Image
+                        <img
                           src={`/assets/Tier_${tier}/${filename}`}
                           alt={filename}
-                          fill
-                          sizes="120px"
-                          className="object-cover"
+                          loading="lazy"
+                          className="absolute inset-0 w-full h-full object-cover"
                         />
                         {/* Delete overlay */}
                         <button

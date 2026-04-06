@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import sharp from "sharp";
 
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
@@ -33,10 +34,9 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Sanitize filename: keep only safe characters
-  const ext = path.extname(file.name).toLowerCase();
-  const baseName = path.basename(file.name, ext).replace(/[^a-zA-Z0-9_-]/g, "_");
-  const safeFilename = `${baseName}${ext}`;
+  // Sanitize filename: keep only safe characters, always save as .webp
+  const baseName = path.basename(file.name, path.extname(file.name)).replace(/[^a-zA-Z0-9_-]/g, "_");
+  const safeFilename = `${baseName}.webp`;
 
   const uploadDir = path.join(process.cwd(), "public", "assets", `Tier_${tier}`);
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -49,7 +49,14 @@ export async function POST(request: NextRequest) {
   }
 
   const bytes = await file.arrayBuffer();
-  fs.writeFileSync(destPath, Buffer.from(bytes));
+
+  // Compress & convert to WebP (typically reduces 5-10MB → 100-500KB)
+  const compressed = await sharp(Buffer.from(bytes))
+    .resize({ width: 2048, height: 2048, fit: "inside", withoutEnlargement: true })
+    .webp({ quality: 80 })
+    .toBuffer();
+
+  fs.writeFileSync(destPath, compressed);
 
   return NextResponse.json({
     ok: true,
