@@ -24,6 +24,18 @@ export const metadata: Metadata = {
       "Licensed nail artist specializing in advanced nail art and cutesy Asian nail art. Book your appointment today!",
     type: "website",
     locale: "en_US",
+    images: {
+      url: "/og-image.jpeg",
+      width: 1200,
+      height: 630,
+    },
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Cutify Nails — Cute Nail Art in San Marcos, CA",
+    description:
+      "Licensed nail artist specializing in advanced nail art and cutesy Asian nail art. Book your appointment today!",
+    images: ["/og-image.jpeg"],
   },
 };
 
