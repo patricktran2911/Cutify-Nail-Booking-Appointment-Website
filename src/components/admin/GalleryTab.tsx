@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, DragEvent, ChangeEvent, memo } from "react";
+import { useState, useEffect, useRef, DragEvent, ChangeEvent, memo } from "react";
 
 interface TierCardProps {
   tier: number;
@@ -188,11 +188,8 @@ interface GalleryTabProps {
 
 export default function GalleryTab({ onAuthError, onError }: GalleryTabProps) {
   const [images, setImages] = useState<Record<number, string[]>>({ 1: [], 2: [], 3: [] });
-  const [loaded, setLoaded] = useState(false);
 
-  // Fetch once on mount
-  if (!loaded) {
-    setLoaded(true);
+  useEffect(() => {
     Promise.all(
       TIERS.map(async ({ tier }) => {
         const res = await fetch(`/api/admin/images?tier=${tier}`);
@@ -208,7 +205,7 @@ export default function GalleryTab({ onAuthError, onError }: GalleryTabProps) {
       results.forEach(({ tier, imgs }) => { next[tier] = imgs; });
       setImages(next);
     });
-  }
+  }, []);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
