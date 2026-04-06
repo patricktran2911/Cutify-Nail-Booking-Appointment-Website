@@ -35,7 +35,7 @@ export default function RemovalRepair() {
                 Repair Policy
               </h3>
               <p className="text-warm-gray leading-relaxed">
-                If your nails lift or come off within <strong>7 days</strong> of
+                If your nails lift or come off within 7 days of
                 your appointment, I&apos;ll fix them for free. Every nail bed is
                 different, and I completely understand that things happen — I want
                 you to love your set the entire time you have it!

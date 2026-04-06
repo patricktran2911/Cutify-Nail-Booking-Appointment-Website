@@ -23,14 +23,11 @@ export default function BookingPolicies() {
                 <ul className="space-y-2 text-warm-gray">
                   <li className="flex items-start gap-2">
                     <span className="text-brand-300 mt-0.5">♡</span>
-                    A <strong className="text-warm-dark">$15 deposit</strong> is
-                    required to secure your appointment
+                    A $15 deposit is required to secure your appointment
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-brand-300 mt-0.5">♡</span>
-                    Deposit must be sent within{" "}
-                    <strong className="text-warm-dark">20 minutes</strong> of
-                    booking
+                    Deposit must be sent within 20 minutes of booking
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-brand-300 mt-0.5">♡</span>
@@ -46,12 +43,8 @@ export default function BookingPolicies() {
                   <p className="font-semibold text-warm-dark mb-1">
                     Manual deposit options:
                   </p>
-                  <p>
-                    Zelle: <strong>(916) 918-4493</strong> — Ngan Nguyen
-                  </p>
-                  <p>
-                    Venmo: <strong>@joziecozie</strong>
-                  </p>
+                  <p>Zelle: (916) 918-4493 — Ngan Nguyen</p>
+                  <p>Venmo: @joziecozie</p>
                   <p className="mt-1 text-xs">
                     Send a screenshot to{" "}
                     <a
@@ -80,8 +73,7 @@ export default function BookingPolicies() {
                 <ul className="space-y-2 text-warm-gray">
                   <li className="flex items-start gap-2">
                     <span className="text-brand-300 mt-0.5">♡</span>
-                    New clients should arrive with{" "}
-                    <strong className="text-warm-dark">bare nails</strong>
+                    New clients should arrive with bare nails
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-brand-300 mt-0.5">♡</span>
@@ -108,8 +100,7 @@ export default function BookingPolicies() {
                 <ul className="space-y-2 text-warm-gray">
                   <li className="flex items-start gap-2">
                     <span className="text-brand-300 mt-0.5">♡</span>
-                    <strong className="text-warm-dark">24-hour notice</strong>{" "}
-                    required to cancel or reschedule for a deposit refund
+                    24-hour notice required to cancel or reschedule for a deposit refund
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-brand-300 mt-0.5">♡</span>
